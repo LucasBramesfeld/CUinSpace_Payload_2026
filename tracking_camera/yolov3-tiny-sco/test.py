@@ -7,38 +7,32 @@ from utils import save_checkpoint, load_checkpoint, target_from_box, plot_image
 
 if __name__ == '__main__':
     import os
-    from dataset import Dataset  # Your Dataset class
-    from model import YOLOv2      # Your model class
-    from loss import YOLOLoss     # Your loss class
+    from dataset import Dataset
+    from model import YOLOv2
+    from loss import YOLOLoss
 
-    # Hyperparameters
     IMAGE_SIZE = 640
     BATCH_SIZE = 16
     LEARNING_RATE = 1e-4
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-    # Paths
     IMAGES_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/images"
     LABELS_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/labels"
-    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv1"
+    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv2"
 
-    # Transform
     transform = transforms.Compose([
         transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
         transforms.ToTensor(),
     ])
 
-    # Dataset and Dataloader
     dataset = Dataset(IMAGES_DIR, LABELS_DIR, image_size=IMAGE_SIZE, transform=transform)
     test_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
-    # Model, Loss, Optimizer
     model = YOLOv2().to(DEVICE)
     loss_fn = YOLOLoss()
     optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
     load_checkpoint(MODEL_DIR, model, optimizer, LEARNING_RATE, device=DEVICE)
 
-    # Getting a sample image from the test data loader
     x, y = next(iter(test_loader))
     x = x.to(DEVICE)
 
@@ -52,7 +46,7 @@ if __name__ == '__main__':
         cell_size_y = 1.0 / H
 
         for result in output:
-            # Find the cell with the highest objectness
+            # Find the cell with the highest confidence
             best_idx = torch.argmax(result[..., 0])
             row = best_idx // W
             col = best_idx % W
@@ -63,8 +57,8 @@ if __name__ == '__main__':
             # Convert to image-relative coordinates
             box_x = (col + box[1]) / W
             box_y = (row + box[2]) / H
-            box_w = box[3]  # assume already normalized to [0,1] relative to image width
-            box_h = box[4]  # assume already normalized to [0,1] relative to image height
+            box_w = box[3]
+            box_h = box[4]
 
             bbox.append(torch.tensor([box_x, box_y, box_w, box_h]))
 

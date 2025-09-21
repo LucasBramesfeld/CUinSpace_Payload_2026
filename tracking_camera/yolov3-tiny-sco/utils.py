@@ -59,24 +59,20 @@ def iou(box1, box2, is_pred=True):
         # Return IoU score
         return iou_score
 
-def target_from_box(box, S=20):
-    """
-    boxes: [num_boxes, 5] -> [class, x_center, y_center, w, h] (normalized)
-    Returns target: [S, S, 5] (objectness + bbox)
-    """
+def target_from_box(box, S=20): # Converts box label to tensor for loss
     target = torch.zeros(S, S, 5)
     
     cls, x_c, y_c, w, h = box
     
     # Determine which cell this box falls into
-    i = int(y_c * S)  # row
-    j = int(x_c * S)  # column
+    i = int(y_c * S)
+    j = int(x_c * S)
     
     # Convert x, y to be relative to the cell
     x_cell = x_c * S - j
     y_cell = y_c * S - i
     
-    target[i, j, 0] = 1           # objectness
+    target[i, j, 0] = 1# objectness
     target[i, j, 1:5] = torch.tensor([x_cell, y_cell, w, h])
     
     return target

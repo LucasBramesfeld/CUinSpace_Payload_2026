@@ -7,7 +7,6 @@ from utils import save_checkpoint, load_checkpoint, target_from_box
 
 # Define the train function to train the model
 def training_loop(model, dataloader, optimizer, loss_fn, device, S=20):
-    # Creating a progress bar
     progress_bar = tqdm(dataloader, leave=True)
     losses = []
 
@@ -41,35 +40,30 @@ def training_loop(model, dataloader, optimizer, loss_fn, device, S=20):
 
 if __name__ == "__main__":
     import os
-    from dataset import Dataset  # Your Dataset class
-    from model import YOLOv2      # Your model class
-    from loss import YOLOLoss     # Your loss class
-
-    # Hyperparameters
+    from dataset import Dataset
+    from model import YOLOv2
+    from loss import YOLOLoss
+   
     IMAGE_SIZE = 640
     BATCH_SIZE = 4
     LEARNING_RATE = 1e-4
-    NUM_EPOCHS = 20
+    NUM_EPOCHS = 157
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     LOAD_MODEL = True
     SAVE_MODEL = True
 
-    # Paths
     IMAGES_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/images"
     LABELS_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/labels"
-    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv1"
+    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv2"
 
-    # Transform
     transform = transforms.Compose([
         transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
         transforms.ToTensor(),
     ])
 
-    # Dataset and Dataloader
     dataset = Dataset(IMAGES_DIR, LABELS_DIR, image_size=IMAGE_SIZE, transform=transform)
     dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
-    # Model, Loss, Optimizer
     model = YOLOv2().to(DEVICE)
     loss_fn = YOLOLoss()
     optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
@@ -82,7 +76,6 @@ if __name__ == "__main__":
         avg_loss = training_loop(model, dataloader, optimizer, loss_fn, DEVICE)
         print(f"Average Loss: {avg_loss:.4f}")
 
-        # Save checkpoint every epoch
         if SAVE_MODEL:
             save_checkpoint(model, optimizer, filename=MODEL_DIR)
 

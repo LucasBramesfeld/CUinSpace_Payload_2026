@@ -6,25 +6,21 @@ from loss import YOLOLoss
 from utils import load_checkpoint, plot_image
 from PIL import Image
 
-# Hyperparameters
 IMAGE_SIZE = 640
 LEARNING_RATE = 1e-4
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Model setup
 model = YOLOv2().to(DEVICE)
 optimizer = torch.optim.Adam(model.parameters())
-MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv1"
+MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv2"
 load_checkpoint(MODEL_DIR, model, optimizer, LEARNING_RATE, device=DEVICE)
 
-# Transform for video frames
 transform = transforms.Compose([
     transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
     transforms.ToTensor(),
 ])
 
-# Video input/output
-video_path = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/rocket_videos/IMG_5934.mov"
+video_path = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/rocket_videos/IREC_2018_compilation.mp4"
 cap = cv2.VideoCapture(video_path)
 
 model.eval()
@@ -39,7 +35,6 @@ with torch.no_grad():
         frame_pil = Image.fromarray(cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB))  
         img_tensor = transform(frame_pil).unsqueeze(0).to(DEVICE)
 
-        # Inference
         output = model(img_tensor).permute(0, 2, 3, 1)  # [B, H, W, C]
 
         B, H, W, C = output.shape
@@ -48,7 +43,7 @@ with torch.no_grad():
 
         bbox = []
         for result in output:
-            best_idx = torch.argmax(result[..., 0])  # highest objectness
+            best_idx = torch.argmax(result[..., 0])  # highest confidence
             row = best_idx // W
             col = best_idx % W
 
@@ -69,7 +64,6 @@ with torch.no_grad():
             y2 = int((by + bh / 2) * H)
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-        # (Optional) Show video while processing
         cv2.imshow("YOLOv2 Detection", frame)
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break

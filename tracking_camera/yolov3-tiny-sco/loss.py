@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from utils import iou  # iou(pred_boxes, target_boxes) -> tensor
+from utils import iou 
 
 class YOLOLoss(nn.Module):
     def __init__(self):

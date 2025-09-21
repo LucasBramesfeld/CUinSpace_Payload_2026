@@ -12,9 +12,7 @@ class CNNBlock(nn.Module):
         self.use_batch_norm = use_batch_norm
 
     def forward(self, x):
-        # Applying convolution
         x = self.conv(x)
-        # Applying BatchNorm and activation if needed
         if self.use_batch_norm:
             x = self.bn(x)
             return self.activation(x)
@@ -26,6 +24,7 @@ class YOLOv2(nn.Module):
         super().__init__()
         self.in_channels = in_channels
 
+        # Based on darknet-19
         self.features = nn.Sequential(
             CNNBlock(in_channels, 32, kernel_size=3, stride=1, padding=1), 
             nn.MaxPool2d(2,2), 
@@ -54,19 +53,16 @@ class YOLOv2(nn.Module):
             CNNBlock(1024, 512, kernel_size=1, stride=1, padding=0), 
             CNNBlock(512, 1024, kernel_size=3, stride=1, padding=1),
 
-            CNNBlock(1024, 5, kernel_size=1, stride=1, padding=0)
+            CNNBlock(1024, 5, kernel_size=1, stride=1, padding=0) # (1, 5, S, S) : S = grid size, 5 -> (confidence, center x, center y, width, height)
         )
 
     def forward(self, x):
         x = self.features(x)
-        x = torch.sigmoid(x)
+        x = torch.sigmoid(x) # Convert to normailzed value (0,1)
         return x
     
 if __name__ == "__main__":
-    # Setting number of classes and image size
     IMAGE_SIZE = 640
-
-    # Creating model and testing output shapes
     model = YOLOv2()
     x = torch.randn((1, 3, IMAGE_SIZE, IMAGE_SIZE))
     out = model(x)
