@@ -2,7 +2,7 @@ import cv2
 import os
 
 # Function to extract frames from a video until reaching the desired frame count
-def extract_frames(video_file, output_directory="unlabeled_images", step=20):
+def extract_frames(video_file, output_directory="C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/unlabeled_images", step=20):
     cap = cv2.VideoCapture(video_file)
 
     # Get the video file's name without extension
@@ -35,7 +35,7 @@ def extract_frames(video_file, output_directory="unlabeled_images", step=20):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    dir = 'rocket_videos'
+    dir = 'C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/rocket_videos'
     files = [f for f in os.listdir(dir)]
     for file in files:
         video_file = os.path.join(dir, file)

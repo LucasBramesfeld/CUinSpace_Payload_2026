@@ -3,11 +3,11 @@ import random
 import csv
 
 # Parameters
-dataset_dir = "./dataset"  # root dataset folder
+dataset_dir = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data"  # root dataset folder
 images_dir = os.path.join(dataset_dir, "images")
 labels_dir = os.path.join(dataset_dir, "labels")
-output_csv = "yolo_train.csv"
-n = 2000  # number of random samples
+output_csv = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/train.csv"
+n = 1500  # number of random samples
 
 # Collect all image files
 image_exts = [".jpg", ".jpeg", ".png"]

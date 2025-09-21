@@ -16,7 +16,7 @@ if __name__ == '__main__':
     save_model = True
 
     # model checkpoint file name
-    checkpoint_file = "rocketv1.pth.tar"
+    checkpoint_file = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/rocketv1.pth.tar"
 
     # Anchor boxes for each feature map scaled between 0 and 1
     # 3 feature maps at 3 different scales based on YOLOv3 paper
@@ -66,9 +66,9 @@ if __name__ == '__main__':
 
     # Defining the test dataset and data loader
     test_dataset = Dataset(
-        csv_file="C:/Users/lucas/OneDrive/Desktop/Rocket Tracking Camera/dataset/yolo_train.csv",
-        image_dir="C:/Users/lucas/OneDrive/Desktop/Rocket Tracking Camera/dataset/images/",
-        label_dir="C:/Users/lucas/OneDrive/Desktop/Rocket Tracking Camera/dataset/labels/",
+        csv_file="C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/train.csv",
+        image_dir="C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/images/",
+        label_dir="C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/labels/",
         anchors=ANCHORS,
         transform=None
     )

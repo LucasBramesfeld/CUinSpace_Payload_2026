@@ -6,7 +6,7 @@ def label_image(image_path):
     img = cv2.imread(image_path)
     h, w = img.shape[:2]  # image dimensions
 
-    screen_w, screen_h = 1300, 700
+    screen_w, screen_h = 1800, 1000
     scale = min(screen_w / w, screen_h / h)
     new_w, new_h = int(w * scale), int(h * scale)
     h, w = new_h, new_w
@@ -46,9 +46,12 @@ def label_image(image_path):
         key = cv2.waitKey(1) & 0xFF
 
         # Press ENTER to save
+        image_dir ='C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/images'
+        label_dir = 'C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/labels'
+
         if key == 13 and box is not None:
-            os.makedirs("dataset/images", exist_ok=True)
-            os.makedirs("dataset/labels", exist_ok=True)
+            os.makedirs(image_dir, exist_ok=True)
+            os.makedirs(label_dir, exist_ok=True)
 
             # bounding box in YOLO format
             x1, y1, x2, y2 = box
@@ -61,9 +64,9 @@ def label_image(image_path):
 
             def save(img_to_save, suffix, flip=False):
                 """Helper to save image + label"""
-                out_img_path = f"dataset/images/{base_name}{suffix}.jpg"
+                out_img_path = f"{image_dir}/{base_name}{suffix}.jpg"
                 cv2.imwrite(out_img_path, img_to_save)
-                out_label_path = f"dataset/labels/{base_name}{suffix}.txt"
+                out_label_path = f"{label_dir}/{base_name}{suffix}.txt"
                 with open(out_label_path, "w") as f:
                     if flip:
                         f.write(f"0 {1 - x_center:.6f} {y_center:.6f} {bw:.6f} {bh:.6f}\n")
@@ -78,7 +81,7 @@ def label_image(image_path):
             save(flipped, "_flip", flip=True)
 
             # Contrast variations
-            contrast_levels = [0.5, 1.5]  # darker, brighter
+            contrast_levels = [0.75, 1.25]  # darker, brighter
             for i, alpha in enumerate(contrast_levels, start=1):
                 adjusted = cv2.convertScaleAbs(img, alpha=alpha, beta=0)
                 save(adjusted, f"_contrast{i}", flip=False)
@@ -97,7 +100,7 @@ def label_image(image_path):
 
 
 # Directory
-dir = 'unlabeled_images'
+dir = 'C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/unlabeled_images'
 files = [f for f in os.listdir(dir)]
 
 while True:

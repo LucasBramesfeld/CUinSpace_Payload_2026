@@ -6,7 +6,7 @@ import numpy as np
 from tqdm import tqdm
 from utils import save_checkpoint, load_checkpoint
 from dataset import Dataset
-from model import YOLOv3, YOLOvR1
+from model import YOLOv3, YOLOvR1, YOLOvR2
 from loss import YOLOLoss
     
 # Define the train function to train the model
@@ -60,11 +60,11 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     # Load and save model variable
-    load_model = True
+    load_model = False
     save_model = True
 
     # model checkpoint file name
-    checkpoint_file = "rocketv1.pth.tar"
+    checkpoint_file = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/rocketv2.pth.tar"
 
     # Anchor boxes for each feature map scaled between 0 and 1
     # 3 feature maps at 3 different scales based on YOLOv3 paper
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     ]
 
     # Batch size for training
-    batch_size = 16
+    batch_size = 4
 
     # Learning rate for training
     leanring_rate = 1e-5
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     s = [image_size // 32, image_size // 16, image_size // 8]
 
     # Creating the model from YOLOv3 class
-    model = YOLOvR1().to(device)
+    model = YOLOvR2().to(device)
 
     # Defining the optimizer
     optimizer = optim.Adam(model.parameters(), lr = leanring_rate)
@@ -106,9 +106,9 @@ if __name__ == '__main__':
 
     # Creating a dataset object
     train_dataset = Dataset(
-        csv_file="C:/Users/lucas/OneDrive/Desktop/Rocket Tracking Camera/dataset/yolo_train.csv",
-        image_dir="C:/Users/lucas/OneDrive/Desktop/Rocket Tracking Camera/dataset/images/",
-        label_dir="C:/Users/lucas/OneDrive/Desktop/Rocket Tracking Camera/dataset/labels/",
+        csv_file="C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/train.csv",
+        image_dir="C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/images/",
+        label_dir="C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/labels/",
         grid_sizes=[13, 26, 52],
         anchors=ANCHORS,
         transform=None
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
         batch_size = batch_size,
-        num_workers = 4,
+        num_workers = 8,
         shuffle = True,
         pin_memory = True,
     )
