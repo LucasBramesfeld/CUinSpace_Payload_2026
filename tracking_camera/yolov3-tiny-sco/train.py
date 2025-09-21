@@ -22,7 +22,7 @@ def training_loop(model, dataloader, optimizer, loss_fn, device, S=20):
 
         # Forward
         predictions = model(images).permute(0, 2, 3, 1) # [B, S, S, 5]
-        loss = loss_fn(predictions, targets)
+        loss, box_loss, object_loss, no_object_loss = loss_fn(predictions, targets)
 
         # Backward
         optimizer.zero_grad()
@@ -33,7 +33,8 @@ def training_loop(model, dataloader, optimizer, loss_fn, device, S=20):
 
         # update progress bar with loss
         mean_loss = sum(losses) / len(losses)
-        progress_bar.set_description(f"Loss: {mean_loss:.4f}")
+        #progress_bar.set_description(f"Loss: {mean_loss:.4f}")
+        progress_bar.set_description(f"Loss: {(box_loss, object_loss, no_object_loss)}")
 
     avg_loss = sum(losses) / len(dataloader)
     return avg_loss
@@ -47,14 +48,14 @@ if __name__ == "__main__":
     IMAGE_SIZE = 640
     BATCH_SIZE = 4
     LEARNING_RATE = 1e-4
-    NUM_EPOCHS = 157
+    NUM_EPOCHS = 100
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     LOAD_MODEL = True
     SAVE_MODEL = True
 
     IMAGES_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/images"
     LABELS_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/labels"
-    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv2"
+    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv3"
 
     transform = transforms.Compose([
         transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),

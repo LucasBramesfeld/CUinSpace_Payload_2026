@@ -62,7 +62,7 @@ def iou(box1, box2, is_pred=True):
 def target_from_box(box, S=20): # Converts box label to tensor for loss
     target = torch.zeros(S, S, 5)
     
-    cls, x_c, y_c, w, h = box
+    obj, x_c, y_c, w, h = box
     
     # Determine which cell this box falls into
     i = int(y_c * S)
@@ -89,8 +89,6 @@ def plot_image(image, box, label="rocket", color=(0,1,0)):
 
     # Add image to plot
     ax.imshow(img)
-
-    print(box)
 
     # Get the upper left corner coordinates
     upper_left_x = box[0] - box[2] / 2

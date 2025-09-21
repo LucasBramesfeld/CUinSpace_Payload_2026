@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     IMAGES_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/images"
     LABELS_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/labels"
-    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv2"
+    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv3"
 
     transform = transforms.Compose([
         transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
@@ -53,6 +53,8 @@ if __name__ == '__main__':
 
             # Select the best box
             box = result[row, col].clone()  # shape: [C] -> [objectness, x, y, w, h]
+
+            print(box)
 
             # Convert to image-relative coordinates
             box_x = (col + box[1]) / W
