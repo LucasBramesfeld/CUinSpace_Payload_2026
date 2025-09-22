@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from utils import iou 
 
 class YOLOLoss(nn.Module):
     def __init__(self):
