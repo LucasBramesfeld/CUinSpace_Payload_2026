@@ -20,7 +20,7 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-video_path = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/rocket_videos/IMG_5934.mov"
+video_path = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/rocket_videos/IMG_5976.mov"
 cap = cv2.VideoCapture(video_path)
 
 model.eval()
@@ -62,9 +62,9 @@ with torch.no_grad():
             y1 = int((by - bh / 2) * H)
             x2 = int((bx + bw / 2) * W)
             y2 = int((by + bh / 2) * H)
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
-        cv2.imshow("YOLOv2 Detection", frame)
+        cv2.imshow("YOLOv3-tiny - RTv3", frame)
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 

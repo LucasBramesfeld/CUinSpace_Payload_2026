@@ -9,7 +9,7 @@ class YOLOLoss(nn.Module):
         self.bce = nn.BCELoss()
         #self.sigmoid = nn.Sigmoid()
 
-    def forward(self, pred, target, lambda_coord=2, lambda_noobj=1, lambda_iou=2):
+    def forward(self, pred, target, lambda_coord=2, lambda_noobj=1):
         """
         pred: [batch, H, W, 5]  -> [objectness, x, y, w, h]
         target: same shape
@@ -26,10 +26,6 @@ class YOLOLoss(nn.Module):
             # Predicted boxes and target boxes for cells containing objects
             pred_box = pred[..., 1:5][obj]
             target_box = target[..., 1:5][obj]
-
-            # IoU loss
-            iou_score = iou(pred_box, target_box)
-            iou_loss = (1 - iou_score).mean()
 
             # MSE for centers and sizes
             center_loss = self.mse(pred_box[:, :2], target_box[:, :2])
