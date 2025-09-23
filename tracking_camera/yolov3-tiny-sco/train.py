@@ -33,8 +33,8 @@ def training_loop(model, dataloader, optimizer, loss_fn, device, S=20):
 
         # update progress bar with loss
         mean_loss = sum(losses) / len(losses)
-        #progress_bar.set_description(f"Loss: {mean_loss:.4f}")
-        progress_bar.set_description(f"Loss: {(box_loss, object_loss, no_object_loss)}")
+        progress_bar.set_description(f"Loss: {mean_loss:.4f}")
+        #progress_bar.set_description(f"Loss: {(box_loss, object_loss, no_object_loss)}")
 
     avg_loss = sum(losses) / len(dataloader)
     return avg_loss
@@ -42,20 +42,20 @@ def training_loop(model, dataloader, optimizer, loss_fn, device, S=20):
 if __name__ == "__main__":
     import os
     from dataset import Dataset
-    from model import YOLOv2
+    from model import YOLOv2, YOLOvS, YOLOvT
     from loss import YOLOLoss
    
     IMAGE_SIZE = 640
-    BATCH_SIZE = 4
+    BATCH_SIZE = 8
     LEARNING_RATE = 1e-4
-    NUM_EPOCHS = 100
+    NUM_EPOCHS = 500
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     LOAD_MODEL = True
     SAVE_MODEL = True
 
     IMAGES_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/images"
     LABELS_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/labels"
-    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv3"
+    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv5"
 
     transform = transforms.Compose([
         transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     dataset = Dataset(IMAGES_DIR, LABELS_DIR, image_size=IMAGE_SIZE, transform=transform)
     dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
-    model = YOLOv2().to(DEVICE)
+    model = YOLOvS().to(DEVICE)
     loss_fn = YOLOLoss()
     optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
     if LOAD_MODEL:

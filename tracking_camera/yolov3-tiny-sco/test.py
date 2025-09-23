@@ -8,7 +8,7 @@ from utils import save_checkpoint, load_checkpoint, target_from_box, plot_image
 if __name__ == '__main__':
     import os
     from dataset import Dataset
-    from model import YOLOv2
+    from model import YOLOv2, YOLOvS, YOLOvT
     from loss import YOLOLoss
 
     IMAGE_SIZE = 640
@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     IMAGES_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/images"
     LABELS_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/labels"
-    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv3"
+    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv5"
 
     transform = transforms.Compose([
         transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     dataset = Dataset(IMAGES_DIR, LABELS_DIR, image_size=IMAGE_SIZE, transform=transform)
     test_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
-    model = YOLOv2().to(DEVICE)
+    model = YOLOvS().to(DEVICE)
     loss_fn = YOLOLoss()
     optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
     load_checkpoint(MODEL_DIR, model, optimizer, LEARNING_RATE, device=DEVICE)
@@ -53,8 +53,6 @@ if __name__ == '__main__':
 
             # Select the best box
             box = result[row, col].clone()  # shape: [C] -> [objectness, x, y, w, h]
-
-            print(box)
 
             # Convert to image-relative coordinates
             box_x = (col + box[1]) / W

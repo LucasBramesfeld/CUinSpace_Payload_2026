@@ -6,7 +6,6 @@ class YOLOLoss(nn.Module):
         super().__init__()
         self.mse = nn.MSELoss()
         self.bce = nn.BCELoss()
-        #self.sigmoid = nn.Sigmoid()
 
     def forward(self, pred, target, lambda_coord=2, lambda_noobj=1):
         """

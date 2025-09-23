@@ -1,7 +1,7 @@
 import cv2
 import torch
 from torchvision import transforms
-from model import YOLOv2
+from model import YOLOv2, YOLOvS, YOLOvT
 from loss import YOLOLoss
 from utils import load_checkpoint, plot_image
 from PIL import Image
@@ -10,9 +10,9 @@ IMAGE_SIZE = 640
 LEARNING_RATE = 1e-4
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-model = YOLOv2().to(DEVICE)
+model = YOLOvS().to(DEVICE)
 optimizer = torch.optim.Adam(model.parameters())
-MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv3"
+MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv5"
 load_checkpoint(MODEL_DIR, model, optimizer, LEARNING_RATE, device=DEVICE)
 
 transform = transforms.Compose([
@@ -20,7 +20,7 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-video_path = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/rocket_videos/IREC_2017_compilation.mp4"
+video_path = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/rocket_videos/IMG_5976.mov"
 cap = cv2.VideoCapture(video_path)
 
 model.eval()
