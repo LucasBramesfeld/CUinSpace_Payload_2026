@@ -6,7 +6,7 @@ import matplotlib.patches as patches
 def target_from_box(box, S=20): # Converts box label to tensor for loss
     target = torch.zeros(S, S, 5)
     
-    obj, x_c, y_c, w, h = box
+    x_c, y_c, w, h = box
     
     # Determine which cell this box falls into
     i = int(y_c * S)

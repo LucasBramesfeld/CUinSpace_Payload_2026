@@ -62,7 +62,8 @@ with torch.no_grad():
             y1 = int((by - bh / 2) * H)
             x2 = int((bx + bw / 2) * W)
             y2 = int((by + bh / 2) * H)
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 1)
+            if box[0] > 0.9:
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
         cv2.imshow("YOLOv3-tiny - RTv3", frame)
         if cv2.waitKey(1) & 0xFF == ord("q"):
