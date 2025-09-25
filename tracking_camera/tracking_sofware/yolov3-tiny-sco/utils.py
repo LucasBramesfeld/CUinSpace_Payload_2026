@@ -34,32 +34,36 @@ def plot_image(image, box, label="rocket", color=(0,1,0)):
     # Add image to plot
     ax.imshow(img)
 
-    # Get the upper left corner coordinates
-    upper_left_x = box[0] - box[2] / 2
-    upper_left_y = box[1] - box[3] / 2
+    if(box[0] > 0.5):
 
-    # Create a Rectangle patch with the bounding box
-    rect = patches.Rectangle(
-        (upper_left_x * w, upper_left_y * h),
-        box[2] * w,
-        box[3] * h,
-        linewidth=1,
-        edgecolor=color,
-        facecolor="none",
-    )
-    
-    # Add the patch to the Axes
-    ax.add_patch(rect)
-    
-    # Add class name to the patch
-    plt.text(
-        upper_left_x * w,
-        upper_left_y * h,
-        s=label,
-        color="white",
-        verticalalignment="top",
-        bbox={"color": color, "pad": 0},
-    )
+        box = box[1:5]
+
+        # Get the upper left corner coordinates
+        upper_left_x = box[0] - box[2] / 2
+        upper_left_y = box[1] - box[3] / 2
+
+        # Create a Rectangle patch with the bounding box
+        rect = patches.Rectangle(
+            (upper_left_x * w, upper_left_y * h),
+            box[2] * w,
+            box[3] * h,
+            linewidth=1,
+            edgecolor=color,
+            facecolor="none",
+        )
+        
+        # Add the patch to the Axes
+        ax.add_patch(rect)
+        
+        # Add class name to the patch
+        plt.text(
+            upper_left_x * w,
+            upper_left_y * h,
+            s=label,
+            color="white",
+            verticalalignment="top",
+            bbox={"color": color, "pad": 0},
+        )
 
     # Display the plot
     plt.show()

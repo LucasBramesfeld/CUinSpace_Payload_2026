@@ -45,27 +45,11 @@ def label_image(image_path):
     while True:
         key = cv2.waitKey(1) & 0xFF
 
-        # Press ENTER to save
-        image_dir ='C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/images'
-        label_dir = 'C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/labels'
-
-        if key == 13 and box is not None:
-            os.makedirs(image_dir, exist_ok=True)
-            os.makedirs(label_dir, exist_ok=True)
-
-            # bounding box in YOLO format
-            x1, y1, x2, y2 = box
-            x_center = ((x1 + x2) / 2) / w
-            y_center = ((y1 + y2) / 2) / h
-            bw = (x2 - x1) / w
-            bh = (y2 - y1) / h
-
-            base_name = os.path.splitext(os.path.basename(image_path))[0]
-
-            def save(img_to_save, suffix, flip=False):
-                """Helper to save image + label"""
-                out_img_path = f"{image_dir}/{base_name}{suffix}.jpg"
-                cv2.imwrite(out_img_path, img_to_save)
+        def save(img_to_save, suffix, flip=False, save_box=True):
+            """Helper to save image + label"""
+            out_img_path = f"{image_dir}/{base_name}{suffix}.jpg"
+            cv2.imwrite(out_img_path, img_to_save)
+            if save_box:
                 out_label_path = f"{label_dir}/{base_name}{suffix}.txt"
                 with open(out_label_path, "w") as f:
                     if flip:
@@ -73,10 +57,21 @@ def label_image(image_path):
                     else:
                         f.write(f"0 {x_center:.6f} {y_center:.6f} {bw:.6f} {bh:.6f}\n")
 
+        base_name = os.path.splitext(os.path.basename(image_path))[0]
+
+        # Press enter to save
+        if key == 13 and box is not None:
+            # bounding box in YOLO format
+            x1, y1, x2, y2 = box
+            x_center = ((x1 + x2) / 2) / w
+            y_center = ((y1 + y2) / 2) / h
+            bw = (x2 - x1) / w
+            bh = (y2 - y1) / h
+
             # Original
             save(img, "", flip=False)
 
-            # Flipped origina
+            #Flipped original
             flipped = cv2.flip(img, 1)
             save(flipped, "_flip", flip=True)
 
@@ -90,8 +85,31 @@ def label_image(image_path):
                 adjusted_flipped = cv2.flip(adjusted, 1)
                 save(adjusted_flipped, f"_contrast{i}_flip", flip=True)
 
-            print(f"Saved 6 images (original, flip, contrast + flips) for {base_name} \t bounding box ceneter:{(x_center,y_center)}")
+            #print(f"Saved 6 images (original, flip, contrast + flips) for {base_name} \t bounding box ceneter:{(x_center,y_center)}")
             break
+
+        # Save when space key is pressed but with no box
+        if key == 32:
+            # Original
+            save(img, "", flip=False, save_box=False)
+
+            #Flipped original
+            flipped = cv2.flip(img, 1)
+            save(flipped, "_flip", flip=True, save_box=False)
+
+            # Contrast variations
+            contrast_levels = [0.75, 1.25]  # darker, brighter
+            for i, alpha in enumerate(contrast_levels, start=1):
+                adjusted = cv2.convertScaleAbs(img, alpha=alpha, beta=0)
+                save(adjusted, f"_contrast{i}", flip=False, save_box=False)
+
+                # Flipped version of contrast image
+                adjusted_flipped = cv2.flip(adjusted, 1)
+                save(adjusted_flipped, f"_contrast{i}_flip", flip=True, save_box=False)
+
+            #print(f"Saved 6 images (original, flip, contrast + flips) for {base_name} \t bounding box ceneter:{(x_center,y_center)}")
+            break
+
 
         # Press ESC to cancel
         if key == 8:
@@ -100,8 +118,14 @@ def label_image(image_path):
 
 
 # Directory
-dir = 'C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/unlabeled_images'
+dir = r'C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/unlabeled_images'
 files = [f for f in os.listdir(dir)]
+
+image_dir = r'C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data2/images'
+label_dir = r'C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data2/labels'
+
+os.makedirs(image_dir, exist_ok=True)
+os.makedirs(label_dir, exist_ok=True)
 
 while True:
     random_file = random.choice(files)

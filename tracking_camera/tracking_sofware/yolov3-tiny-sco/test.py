@@ -16,9 +16,9 @@ if __name__ == '__main__':
     LEARNING_RATE = 1e-4
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-    IMAGES_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/images"
-    LABELS_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/data/labels"
-    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv5"
+    IMAGES_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data2/images"
+    LABELS_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data2/labels"
+    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/None_data"
 
     transform = transforms.Compose([
         transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
@@ -60,7 +60,8 @@ if __name__ == '__main__':
             box_w = box[3]
             box_h = box[4]
 
-            bbox.append(torch.tensor([box_x, box_y, box_w, box_h]))
+            bbox.append(torch.tensor([box[0], box_x, box_y, box_w, box_h]))
+            print(box[0])
 
         for i in range(BATCH_SIZE):
             plot_image(x[i].cpu().permute(1, 2, 0), bbox[i].cpu())

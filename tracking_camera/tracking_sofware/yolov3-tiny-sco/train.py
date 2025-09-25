@@ -16,7 +16,7 @@ def training_loop(model, dataloader, optimizer, loss_fn, device, S=20):
 
         # Create target tensor
         for i, box in enumerate(boxes):
-            if box.numel() == 0:
+            if box.numel() == 0 or box.sum() == 0:
                 continue
             targets[i] = target_from_box(box, S=S).to(device)
 
@@ -50,12 +50,12 @@ if __name__ == "__main__":
     LEARNING_RATE = 1e-4
     NUM_EPOCHS = 500
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    LOAD_MODEL = False
+    LOAD_MODEL = True
     SAVE_MODEL = True
 
-    IMAGES_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data/images"
-    LABELS_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data/labels"
-    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv7"
+    IMAGES_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data2/images"
+    LABELS_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data2/labels"
+    MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/None_data"
 
     transform = transforms.Compose([
         transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),

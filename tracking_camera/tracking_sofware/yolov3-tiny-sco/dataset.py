@@ -30,6 +30,6 @@ class Dataset(Dataset):
                 line = f.readline()
                 cls, x, y, w, h = map(float, line.strip().split()[0:5])
                 box = [x, y, w, h]
-        box = torch.tensor(box) if box else torch.zeros((0, 5))
+        box = torch.tensor(box) if box else torch.zeros(4)
         
         return image, box

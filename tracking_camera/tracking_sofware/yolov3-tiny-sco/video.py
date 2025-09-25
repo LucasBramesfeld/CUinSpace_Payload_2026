@@ -12,7 +12,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 model = YOLOvS().to(DEVICE)
 optimizer = torch.optim.Adam(model.parameters())
-MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/RTv5"
+MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/None_data"
 load_checkpoint(MODEL_DIR, model, optimizer, LEARNING_RATE, device=DEVICE)
 
 transform = transforms.Compose([
@@ -20,7 +20,7 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-video_path = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/rocket_videos/IMG_5976.mov"
+video_path = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/rocket_videos/IREC_2017_compilation.mp4"
 cap = cv2.VideoCapture(video_path)
 
 model.eval()
@@ -62,7 +62,7 @@ with torch.no_grad():
             y1 = int((by - bh / 2) * H)
             x2 = int((bx + bw / 2) * W)
             y2 = int((by + bh / 2) * H)
-            if box[0] > 0.9:
+            if box[0] > 0.5:
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 1)
 
         cv2.imshow("YOLOv3-tiny - RTv3", frame)
