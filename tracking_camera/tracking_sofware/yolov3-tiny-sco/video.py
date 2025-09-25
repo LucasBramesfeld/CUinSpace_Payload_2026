@@ -20,7 +20,7 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-video_path = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/rocket_videos/IREC_2017_compilation.mp4"
+video_path = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/rocket_videos/IMG_5976.mov"
 cap = cv2.VideoCapture(video_path)
 
 model.eval()
