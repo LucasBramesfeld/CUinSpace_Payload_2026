@@ -3,7 +3,7 @@ import numpy as np
 
 class FeatureTracker:
     def __init__(self, initial_box):
-        self.detector = cv2.ORB_create(10000) 
+        self.detector = cv2.ORB_create(1000) 
         self.matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
         self.prev_box = initial_box
         self.prev_boxes = [initial_box]
@@ -18,7 +18,7 @@ class FeatureTracker:
         matches = self.matcher.match(des1, des2)
 
         # Find the matches there do not have a too high distance
-        good = sorted(matches, key = lambda x:x.distance)[:10]
+        good = matches#sorted(matches, key = lambda x:x.distance)[:10]
 
         draw_params = dict(
             matchColor=-1,  # draw matches in green color
@@ -104,6 +104,7 @@ if __name__ == "__main__":
     cap = cv2.VideoCapture(video_path)
 
     tracker = None
+    matches = None
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -117,10 +118,13 @@ if __name__ == "__main__":
             box_img = cut_box(frame)
             tracker = FeatureTracker(box_img)
             continue
-
-        matches = cv2.resize(tracker.get_matches(frame), (int(frame.shape[1]*0.5), int(frame.shape[0]*0.5)))
-        cv2.imshow("Matches", matches)
-        cv2.waitKey(33)
+        try:
+            matches = cv2.resize(tracker.get_matches(frame), (int(frame.shape[1]*0.5), int(frame.shape[0]*0.5)))
+        except Exception as e:
+            pass
+        finally:
+            cv2.imshow("Matches", matches)
+            cv2.waitKey(33)
 
     cap.release()
     cv2.destroyAllWindows()
