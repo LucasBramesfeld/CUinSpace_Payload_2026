@@ -118,11 +118,12 @@ def label_image(image_path):
 
 
 # Directory
-dir = r'C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/unlabeled_images'
+#dir = r'C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data/images'
+dir = "C:/Users/lucas_6hii5cu/Downloads/Rocket Tracking Camera.v1i.yolov8/train/images"
 files = [f for f in os.listdir(dir)]
 
-image_dir = r'C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data2/images'
-label_dir = r'C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data2/labels'
+image_dir = r'C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data_none_v3/images'
+label_dir = r'C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data_none_v3/labels'
 
 os.makedirs(image_dir, exist_ok=True)
 os.makedirs(label_dir, exist_ok=True)

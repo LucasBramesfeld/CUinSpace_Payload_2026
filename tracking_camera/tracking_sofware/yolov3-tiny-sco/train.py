@@ -46,15 +46,15 @@ if __name__ == "__main__":
     from loss import YOLOLoss
    
     IMAGE_SIZE = 640
-    BATCH_SIZE = 8
-    LEARNING_RATE = 1e-4
+    BATCH_SIZE = 16
+    LEARNING_RATE = 1e-5
     NUM_EPOCHS = 500
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     LOAD_MODEL = True
     SAVE_MODEL = True
 
-    IMAGES_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data2/images"
-    LABELS_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data2/labels"
+    IMAGES_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data_none_v3/images"
+    LABELS_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data_none_v3/labels"
     MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/None_data"
 
     transform = transforms.Compose([

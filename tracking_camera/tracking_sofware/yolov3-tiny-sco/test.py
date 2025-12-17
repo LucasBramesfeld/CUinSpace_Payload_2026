@@ -16,8 +16,8 @@ if __name__ == '__main__':
     LEARNING_RATE = 1e-4
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-    IMAGES_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data2/images"
-    LABELS_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data2/labels"
+    IMAGES_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data_none_v3/images"
+    LABELS_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/custom_data/labels"
     MODEL_DIR = "C:/Users/lucas_6hii5cu/Documents/datasets/tracking_camera/None_data"
 
     transform = transforms.Compose([
