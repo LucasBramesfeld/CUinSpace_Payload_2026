@@ -67,10 +67,10 @@ class FeatureTracker:
 
         keep_in, keep_out = [], []
         for m in matches_in:
-            if m.trainIdx not in common_idxs or in_dist_map[m.trainIdx] < 0.5 * out_dist_map[m.trainIdx]:
+            if m.trainIdx not in common_idxs or in_dist_map[m.trainIdx] < 1 * out_dist_map[m.trainIdx]:
                 keep_in.append(m)
         for m in matches_out:
-            if m.trainIdx not in common_idxs or out_dist_map[m.trainIdx] >= 0.5 * in_dist_map[m.trainIdx]:
+            if m.trainIdx not in common_idxs or out_dist_map[m.trainIdx] >= 1 * in_dist_map[m.trainIdx]:
                 keep_out.append(m)
 
         # Compute new keypoints positions for matched inside points
@@ -191,7 +191,7 @@ if __name__ == "__main__":
 
         frame = cv2.resize(frame, (int(frame.shape[1]*0.5), int(frame.shape[0]*0.5)))
         cv2.imshow("Matches", frame)
-        cv2.waitKey(200)
+        cv2.waitKey(1)
 
         # Press 'q' to quit
         if cv2.waitKey(1) & 0xFF == ord('q'):

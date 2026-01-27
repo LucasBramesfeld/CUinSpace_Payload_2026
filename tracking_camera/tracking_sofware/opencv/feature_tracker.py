@@ -1,56 +1,127 @@
 import cv2
 import numpy as np
+import random
 
 class FeatureTracker:
-    def __init__(self, initial_box):
-        self.detector = cv2.ORB_create(1000) 
-        self.matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-        self.prev_box = initial_box
-        self.prev_boxes = [initial_box]
+    def __init__(self, initial_frame, initial_box):
+        self.detector = cv2.ORB_create()
+        self.matcher = cv2.BFMatcher(cv2.NORM_HAMMING)
+        self.prev_image = initial_frame
+        self.box = initial_box  # (x, y, w, h)
 
-    def get_matches(self, image):
-        # Find the keypoints and descriptors with ORB
-        kp1, des1 = self.detector.detectAndCompute(self.prev_boxes[-1], None)
+        # Detect keypoints/descriptors in the initial frame
+        kp_all, des_all = self.detector.detectAndCompute(self.prev_image, None)
 
-        kp2, des2 = self.detector.detectAndCompute(image, None)
-        # Find matches
-        #matches = self.matcher.knnMatch(des1, des2, k=2)
-        matches = self.matcher.match(des1, des2)
+        # Separate points inside vs. outside the box
+        self.kp_in, self.des_in, self.kp_out, self.des_out = self.split_keypoints_by_box(kp_all, des_all, self.box)
 
-        # Find the matches there do not have a too high distance
-        good = matches#sorted(matches, key = lambda x:x.distance)[:10]
+    def split_keypoints_by_box(self, keypoints, descriptors, box):
+        x, y, w, h = box
+        kp_in, des_in = [], []
+        kp_out, des_out = [], []
 
-        draw_params = dict(
-            matchColor=-1,  # draw matches in green color
-            singlePointColor=None,
-            matchesMask=None,  # draw only inliers
-            flags=2
-        )
+        for i, kp in enumerate(keypoints):
+            if x <= kp.pt[0] <= x + w and y <= kp.pt[1] <= y + h:
+                kp_in.append(kp)
+                if descriptors is not None:
+                    des_in.append(descriptors[i])
+            else:
+                kp_out.append(kp)
+                if descriptors is not None:
+                    des_out.append(descriptors[i])
 
-        img3 = None
+        des_in = np.array(des_in) if len(des_in) > 0 else None
+        des_out = np.array(des_out) if len(des_out) > 0 else None
 
-        # Get the image points from the good matches
-        q2 = np.float32([kp2[m.trainIdx].pt for m in good])
-
-        mean_x = int(np.mean(q2[:, 0]))
-        mean_y = int(np.mean(q2[:, 1]))
-            
-        new_box = (mean_x - self.prev_box.shape[1] // 2,
-                   mean_x + self.prev_box.shape[1] // 2,
-                   mean_y - self.prev_box.shape[0] // 2,
-                   mean_y + self.prev_box.shape[0] // 2)
-        
-        cv2.rectangle(image, (new_box[0], new_box[2]), (new_box[1], new_box[3]), (255, 0, 0), 2)
-        img3 = cv2.drawMatches(self.prev_boxes[-1], kp1, image, kp2, good, None, **draw_params)
-
-        self.prev_box = image[new_box[2]:new_box[3], new_box[0]:new_box[1]]
-        self.prev_boxes.append(self.prev_box)
-
-        return img3
+        return kp_in, des_in, kp_out, des_out
     
-def cut_box(img):
+    def evaluate_box(self, box, old_box, kp_in, kp_out):
+        x, y, w, h = box
+        score = 0
+
+        for kp in kp_in:
+            if x <= kp.pt[0] <= x + w and y <= kp.pt[1] <= y + h:
+                score += 1  # Reward inside points
+
+        for kp in kp_out:
+            if x <= kp.pt[0] <= x + w and y <= kp.pt[1] <= y + h:
+                score -= 1  # Penalize outside points
+
+        tau = 0.05 * (abs(old_box[0] - x) + abs(old_box[1] - y)) + 1 * (abs(old_box[2] - w) + abs(old_box[3] - h))
+
+        return score #- tau
+
+    def update(self, new_frame, search_radius=100):
+        kp, des = self.detector.detectAndCompute(new_frame, None)
+        if des is None or len(kp) == 0:
+            return self.prev_image  # nothing to update
+
+        # Match with previous inside/outside descriptors
+        matches_in = self.matcher.match(self.des_in, des) if self.des_in is not None else []
+        matches_out = self.matcher.match(self.des_out, des) if self.des_out is not None else []
+
+        # Filter out duplicate matches between in/out
+        in_dist_map = {m.trainIdx: m.distance for m in matches_in}
+        out_dist_map = {m.trainIdx: m.distance for m in matches_out}
+        common_idxs = set(in_dist_map.keys()) & set(out_dist_map.keys())
+
+        keep_in, keep_out = [], []
+        for m in matches_in:
+            if m.trainIdx not in common_idxs or in_dist_map[m.trainIdx] < out_dist_map[m.trainIdx]:
+                keep_in.append(m)
+        for m in matches_out:
+            if m.trainIdx not in common_idxs or out_dist_map[m.trainIdx] >= in_dist_map[m.trainIdx]:
+                keep_out.append(m)
+        
+        kp_in_matched = [kp[m.trainIdx] for m in keep_in]
+        kp_out_matched = [kp[m.trainIdx] for m in keep_out]
+
+        # Compute new keypoints positions for matched inside points
+        if len(keep_in) > 0:
+            pts_prev = np.array([self.kp_in[m.queryIdx].pt for m in keep_in])
+            pts_new = np.array([kp[m.trainIdx].pt for m in keep_in])
+
+            # Compute average motion
+            delta = np.mean(pts_new - pts_prev, axis=0)
+            dx, dy = delta
+
+            # Optional: estimate scale (ratio of mean distances)
+            if len(pts_prev) > 1:
+                d_prev = np.linalg.norm(pts_prev - pts_prev.mean(axis=0), axis=1)
+                d_new = np.linalg.norm(pts_new - pts_new.mean(axis=0), axis=1)
+                scale = np.median(d_new / (d_prev + 1e-6))
+                scale = max(0.99, min(1.11, scale))
+            else:
+                scale = 1.0
+
+            # Update bounding box position and size
+            x, y, w, h = self.box
+            cx, cy = x + w / 2, y + h / 2
+            new_w, new_h = w * scale, h * scale
+            new_cx, new_cy = cx + dx, cy + dy
+            new_box = (
+                int(new_cx - new_w / 2),
+                int(new_cy - new_h / 2),
+                int(new_w),
+                int(new_h)
+            )
+        else:
+            new_box = self.box  # fallback if no matches
+
+        if self.evaluate_box(new_box, self.box, kp_in_matched, kp_out_matched) < self.evaluate_box(self.box, self.box, kp_in_matched, kp_out_matched):
+            #print("Reverting to old box")
+            #new_box = self.box  # revert to old box if new is worse
+            pass
+
+        # Update internal state
+        self.prev_image = new_frame
+        self.box = new_box
+        self.kp_in, self.des_in, self.kp_out, self.des_out = self.split_keypoints_by_box(kp, des, new_box)
+        
+
+def label_box(img):
     h, w = img.shape[:2]  # image dimensions
-    screen_w, screen_h = 1000, 500
+    screen_w, screen_h = 800, 800
     scale = min(screen_w / w, screen_h / h)
     new_w, new_h = int(w * scale), int(h * scale)
     rh, rw = h/new_h, w/new_w
@@ -93,18 +164,17 @@ def cut_box(img):
         if key == 13 and box is not None:
             # bounding box in YOLO format
             x1, y1, x2, y2 = box
-            return img[y1:y2, x1:x2]
+            return (x1, y1, x2 - x1, y2 - y1)
 
         # Press ESC to cancel
         if key == 8:
             break
 
 if __name__ == "__main__":
-    video_path = 'C:/Users/lucas/Downloads/Untitled video - Made with Clipchamp (18).mp4'
+    video_path = "C:\\Users\\lucas\\OneDrive\\Desktop\\Rocket Tracking Camera\\rocket_videos\\IMG_5934.mov"#'C:/Users/lucas/Downloads/Untitled video - Made with Clipchamp (18).mp4'
     cap = cv2.VideoCapture(video_path)
 
     tracker = None
-    matches = None
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -112,19 +182,23 @@ if __name__ == "__main__":
             break
 
         #frame =cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         if tracker is None:
-            box_img = cut_box(frame)
-            tracker = FeatureTracker(box_img)
+            box = label_box(frame)
+            tracker = FeatureTracker(frame, box)
             continue
-        try:
-            matches = cv2.resize(tracker.get_matches(frame), (int(frame.shape[1]*0.5), int(frame.shape[0]*0.5)))
-        except Exception as e:
-            pass
-        finally:
-            cv2.imshow("Matches", matches)
-            cv2.waitKey(33)
+        
+        
+        match_img = tracker.update(frame)
+        cv2.rectangle(frame, (tracker.box[0], tracker.box[1]), (tracker.box[0]+tracker.box[2], tracker.box[1]+tracker.box[3]), (0, 255, 0), 2)
+
+        frame = cv2.resize(frame, (int(frame.shape[1]*0.5), int(frame.shape[0]*0.5)))
+        cv2.imshow("Matches", frame)
+        cv2.waitKey(1)
+
+        # Press 'q' to quit
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
     cap.release()
     cv2.destroyAllWindows()
